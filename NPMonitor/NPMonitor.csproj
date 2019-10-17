@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UserSecretsId>dotnet-NPMonitor-7D8FB1EA-868F-401A-B595-9DCEF337CC07</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\..\..\AppData\Local\Temp\~vsDBD0.json" Link="~vsDBD0.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
+  </ItemGroup>
+</Project>
