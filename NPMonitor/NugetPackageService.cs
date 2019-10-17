@@ -38,15 +38,18 @@ namespace NPMonitor
                 {
                     conn.Open();
                     connInsert.Open();
-
+                    
                     string cmdText = @"SELECT DISTINCT ng.NugetPackageID, ng.NugetPackageName
                                         FROM Companies cp
                                         JOIN CompanyPackages pr ON cp.CompanyID=pr.CompanyID
                                         JOIN NugetPackages ng ON ng.NugetPackageID=pr.NugetPackageID
-                                        WHERE cp.CompanyName='Telular AMETEK'
+                                        WHERE cp.CompanyName=@CompanyName
                                         ORDER BY ng.NugetPackageName ASC";
-                    
-                    using SqlCommand cmdSelectNugetPackages = new SqlCommand(cmdText, conn) { CommandType = System.Data.CommandType.Text };
+
+                    using SqlCommand cmdSelectNugetPackages = new SqlCommand(cmdText, conn);
+                    cmdSelectNugetPackages.CommandType = System.Data.CommandType.Text;
+                    cmdSelectNugetPackages.Parameters.Add(new SqlParameter("@CompanyName", _config.GetSection("NPMonAccount").GetValue<string>("CompanyName")));
+
                     using SqlDataReader rdr = cmdSelectNugetPackages.ExecuteReader();
                         
                     // Iterate through NugetPackages querying for latest version
