@@ -25,7 +25,7 @@ namespace NPMonitor
                 {
                     config.SetBasePath(hostingContext.HostingEnvironment.ContentRootPath);
                     config.AddJsonFile("appsettings.json", true, true);
-                    config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json");
+                    config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", false, true);
                 })
                 .ConfigureServices((hostingContext, services) =>
                 {

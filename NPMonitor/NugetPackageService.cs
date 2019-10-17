@@ -2,6 +2,7 @@ using System;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -12,12 +13,14 @@ namespace NPMonitor
         private readonly INugetOrgClient _noc;
         private readonly ILogger<Worker> _logger;
         private readonly IHostApplicationLifetime _app;
+        private readonly IConfiguration _config;
 
-        public NugetPackageService(INugetOrgClient client, ILogger<Worker> logger, IHostApplicationLifetime appLifetime)
+        public NugetPackageService(INugetOrgClient client, ILogger<Worker> logger, IHostApplicationLifetime appLifetime, IConfiguration config)
         {
             _noc = client;
             _logger = logger;
             _app = appLifetime;
+            _config = config;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -27,7 +30,7 @@ namespace NPMonitor
                 _logger.LogInformation("NugetPackageService running at: {time}", DateTimeOffset.Now);
 
                 // Query NPMonitor database for NugetPackages
-                string connectionString = @"Data Source=np:\\.\pipe\LOCALDB#360FA36A\tsql\query;Initial Catalog=NPMonitor;Integrated Security=true;";// @"np:\\.\pipe\LOCALDB#195DB6A4\tsql\query";
+                string connectionString = _config.GetConnectionString("NPMonDB");
                 SqlConnection conn = new SqlConnection(connectionString);
                 SqlConnection connInsert = new SqlConnection(connectionString);
 
