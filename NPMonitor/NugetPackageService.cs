@@ -2,6 +2,7 @@ using System;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -12,12 +13,14 @@ namespace NPMonitor
         private readonly INugetOrgClient _noc;
         private readonly ILogger<Worker> _logger;
         private readonly IHostApplicationLifetime _app;
+        private readonly IConfiguration _config;
 
-        public NugetPackageService(INugetOrgClient client, ILogger<Worker> logger, IHostApplicationLifetime appLifetime)
+        public NugetPackageService(INugetOrgClient client, ILogger<Worker> logger, IHostApplicationLifetime appLifetime, IConfiguration config)
         {
             _noc = client;
             _logger = logger;
             _app = appLifetime;
+            _config = config;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -27,7 +30,7 @@ namespace NPMonitor
                 _logger.LogInformation("NugetPackageService running at: {time}", DateTimeOffset.Now);
 
                 // Query NPMonitor database for NugetPackages
-                string connectionString = @"Data Source=np:\\.\pipe\LOCALDB#360FA36A\tsql\query;Initial Catalog=NPMonitor;Integrated Security=true;";// @"np:\\.\pipe\LOCALDB#195DB6A4\tsql\query";
+                string connectionString = _config.GetConnectionString("NPMonDB");
                 SqlConnection conn = new SqlConnection(connectionString);
                 SqlConnection connInsert = new SqlConnection(connectionString);
 
@@ -35,15 +38,18 @@ namespace NPMonitor
                 {
                     conn.Open();
                     connInsert.Open();
-
+                    
                     string cmdText = @"SELECT DISTINCT ng.NugetPackageID, ng.NugetPackageName
                                         FROM Companies cp
                                         JOIN CompanyPackages pr ON cp.CompanyID=pr.CompanyID
                                         JOIN NugetPackages ng ON ng.NugetPackageID=pr.NugetPackageID
-                                        WHERE cp.CompanyName='Telular AMETEK'
+                                        WHERE cp.CompanyName=@CompanyName
                                         ORDER BY ng.NugetPackageName ASC";
-                    
-                    using SqlCommand cmdSelectNugetPackages = new SqlCommand(cmdText, conn) { CommandType = System.Data.CommandType.Text };
+
+                    using SqlCommand cmdSelectNugetPackages = new SqlCommand(cmdText, conn);
+                    cmdSelectNugetPackages.CommandType = System.Data.CommandType.Text;
+                    cmdSelectNugetPackages.Parameters.Add(new SqlParameter("@CompanyName", _config.GetSection("NPMonAccount").GetValue<string>("CompanyName")));
+
                     using SqlDataReader rdr = cmdSelectNugetPackages.ExecuteReader();
                         
                     // Iterate through NugetPackages querying for latest version
