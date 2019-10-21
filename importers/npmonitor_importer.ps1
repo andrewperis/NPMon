@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Name: npmonitor.ps1
+    Name: npmonitor_importer.ps1
     The purpose of this script is to gather and store NuGet package information.
 
 .DESCRIPTION
