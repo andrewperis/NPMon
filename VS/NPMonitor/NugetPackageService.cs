@@ -1,7 +1,7 @@
 using System;
-using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -31,6 +31,7 @@ namespace NPMonitor
 
                 // Query NPMonitor database for NugetPackages
                 string connectionString = _config.GetConnectionString("NPMonDB");
+
                 SqlConnection conn = new SqlConnection(connectionString);
                 SqlConnection connInsert = new SqlConnection(connectionString);
 
@@ -63,7 +64,7 @@ namespace NPMonitor
                         }
                     }
                 }
-                catch(Exception)
+                catch(Exception e)
                 {
                     _logger.LogError("  Exception opening SQL connection.");
                 }
